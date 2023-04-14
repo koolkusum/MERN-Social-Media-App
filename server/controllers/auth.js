@@ -49,14 +49,18 @@ export const register = async (req, res) => {
   export const login = async (req, res) => {
     try {
       const { email, password } = req.body;
+      //findOne cause there will only be one email
       const user = await User.findOne({ email: email });
+      //error status set to 400 otherwise
       if (!user) return res.status(400).json({ msg: "User does not exist. " });
   
+        //checking for correct password
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(400).json({ msg: "Invalid credentials. " });
-  
+        //encryted
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
       delete user.password;
+      
       res.status(200).json({ token, user });
     } catch (err) {
       res.status(500).json({ error: err.message });
