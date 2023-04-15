@@ -4,6 +4,7 @@ import User from "../models/User.js";
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
+    //using the id to grab information the user we want
     const user = await User.findById(id);
     res.status(200).json(user);
   } catch (err) {
@@ -11,6 +12,7 @@ export const getUser = async (req, res) => {
   }
 };
 
+//grab all user friends based on their id
 export const getUserFriends = async (req, res) => {
   try {
     const { id } = req.params;
@@ -19,11 +21,13 @@ export const getUserFriends = async (req, res) => {
     const friends = await Promise.all(
       user.friends.map((id) => User.findById(id))
     );
+    //sending tofrontend
     const formattedFriends = friends.map(
       ({ _id, firstName, lastName, occupation, location, picturePath }) => {
         return { _id, firstName, lastName, occupation, location, picturePath };
       }
     );
+    //json format to frontend
     res.status(200).json(formattedFriends);
   } catch (err) {
     res.status(404).json({ message: err.message });
@@ -36,7 +40,7 @@ export const addRemoveFriend = async (req, res) => {
     const { id, friendId } = req.params;
     const user = await User.findById(id);
     const friend = await User.findById(friendId);
-
+    //if frient remove friend from their own freindlsit
     if (user.friends.includes(friendId)) {
       user.friends = user.friends.filter((id) => id !== friendId);
       friend.friends = friend.friends.filter((id) => id !== id);
